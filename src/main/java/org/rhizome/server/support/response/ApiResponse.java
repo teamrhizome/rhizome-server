@@ -44,5 +44,4 @@ public class ApiResponse<S> {
     public ErrorMessage getError() {
         return error;
     }
-
 }

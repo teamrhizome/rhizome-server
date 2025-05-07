@@ -4,9 +4,8 @@ import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorType {
-
-    DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.",
-            LogLevel.ERROR);
+    DEFAULT_ERROR(
+            HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR);
 
     private final HttpStatus status;
 
@@ -39,5 +38,4 @@ public enum ErrorType {
     public LogLevel getLogLevel() {
         return logLevel;
     }
-
 }
