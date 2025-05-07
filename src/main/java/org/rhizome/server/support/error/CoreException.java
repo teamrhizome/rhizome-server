@@ -25,5 +25,4 @@ public class CoreException extends RuntimeException {
     public Object getData() {
         return data;
     }
-
 }

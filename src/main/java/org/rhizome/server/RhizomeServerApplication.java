@@ -9,5 +9,4 @@ public class RhizomeServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(RhizomeServerApplication.class, args);
     }
-
 }

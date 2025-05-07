@@ -31,5 +31,4 @@ public class ErrorMessage {
     public Object getData() {
         return data;
     }
-
 }
