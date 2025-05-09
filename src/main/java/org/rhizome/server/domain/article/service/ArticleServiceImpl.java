@@ -18,7 +18,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleResponseDto getArticle(Long id) {
-        Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(INVALID_ARTICLE));
+        Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
 
         return ArticleResponseDto.of(article);
     }
