@@ -37,7 +37,7 @@ public class ArticleReference extends BaseTimeEntity {
         this.targetArticle = targetArticle;
     }
 
-    public static ArticleReference createArticleReference(Article sourceArticle, Article targetArticle) {
+    public static ArticleReference create(Article sourceArticle, Article targetArticle) {
         return ArticleReference.builder()
                 .sourceArticle(sourceArticle)
                 .targetArticle(targetArticle)
