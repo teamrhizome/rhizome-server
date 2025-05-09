@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorType {
     DEFAULT_ERROR(
-            HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR);
+            HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR),
+    ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, ErrorCode.E400, "존재하지 않는 게시글입니다.", LogLevel.WARN);
 
     private final HttpStatus status;
 
