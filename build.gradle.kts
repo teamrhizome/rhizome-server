@@ -28,6 +28,9 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    
+    // Swagger UI (Springdoc OpenAPI)
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 }
 
 spotless {
