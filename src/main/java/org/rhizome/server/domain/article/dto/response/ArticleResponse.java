@@ -1,4 +1,4 @@
-package org.rhizome.server.domain.article.dto;
+package org.rhizome.server.domain.article.dto.response;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class ArticleResponseDto {
+public class ArticleResponse {
     private Long id;
     private String title;
     private String content;
@@ -16,8 +16,7 @@ public class ArticleResponseDto {
     private LocalDateTime updatedAt;
 
     @Builder
-    private ArticleResponseDto(
-            Long id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private ArticleResponse(Long id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -25,8 +24,8 @@ public class ArticleResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public static ArticleResponseDto of(Article article) {
-        return ArticleResponseDto.builder()
+    public static ArticleResponse of(Article article) {
+        return ArticleResponse.builder()
                 .id(article.getId())
                 .title(article.getTitle())
                 .content(article.getContent())
