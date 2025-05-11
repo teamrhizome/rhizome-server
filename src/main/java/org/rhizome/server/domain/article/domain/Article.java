@@ -29,19 +29,21 @@ public class Article extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column
+    private LocalDateTime publishedAt;
 
     @Builder
-    private Article(String title, String content) {
+    private Article(String title, String content, LocalDateTime publishedAt) {
         this.title = title;
         this.content = content;
+        this.publishedAt = publishedAt;
     }
 
-    public static Article create(String title, String content) {
-        return Article.builder().title(title).content(content).build();
+    public static Article create(String title, String content, LocalDateTime publishedAt) {
+        return Article.builder()
+                .title(title)
+                .content(content)
+                .publishedAt(publishedAt)
+                .build();
     }
 }

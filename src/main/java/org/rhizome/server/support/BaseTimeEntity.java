@@ -10,9 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Getter;
 
-@Getter
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public class BaseTimeEntity {
@@ -24,11 +22,18 @@ public class BaseTimeEntity {
     @Column
     private LocalDateTime updatedAt;
 
+    @Column
+    private LocalDateTime deletedAt;
+
     public LocalDateTime getCreatedAt() {
         return createdAt.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 }
