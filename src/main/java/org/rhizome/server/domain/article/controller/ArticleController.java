@@ -29,7 +29,7 @@ public class ArticleController {
     @PostMapping
     public ApiResponse<?> publishArticle(@RequestBody CreateArticleRequest request) {
         articleService.publishArticle(
-                request.title(), request.title(), request.relateArticleIds().articleIds());
+                request.title(), request.content(), request.relateArticleIds().articleIds());
         return ApiResponse.success();
     }
 
