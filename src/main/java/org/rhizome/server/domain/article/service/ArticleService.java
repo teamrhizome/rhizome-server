@@ -8,4 +8,6 @@ public interface ArticleService {
     ArticleResponse getArticle(Long id);
 
     void publishArticle(String title, String content, List<Long> relateArticleIds);
+
+    void updateArticle(Long id, String title, String content, List<Long> relateArticleIds);
 }

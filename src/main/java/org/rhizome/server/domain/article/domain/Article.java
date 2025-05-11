@@ -1,6 +1,7 @@
 package org.rhizome.server.domain.article.domain;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.rhizome.server.support.BaseTimeEntity;
 
@@ -45,5 +46,11 @@ public class Article extends BaseTimeEntity {
                 .content(content)
                 .publishedAt(publishedAt)
                 .build();
+    }
+
+    public void update(String title, String content, LocalDateTime publishedAt) {
+        this.title = Objects.requireNonNullElse(title, this.title);
+        this.content = Objects.requireNonNullElse(content, this.content);
+        this.publishedAt = publishedAt;
     }
 }
