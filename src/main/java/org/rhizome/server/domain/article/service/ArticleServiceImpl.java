@@ -2,7 +2,11 @@ package org.rhizome.server.domain.article.service;
 
 import static org.rhizome.server.support.error.ErrorType.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rhizome.server.common.utils.LocalDateTimeHolder;
 import org.rhizome.server.domain.article.domain.Article;
@@ -42,5 +46,40 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(referenceArticle -> ArticleReference.create(savedArticle, referenceArticle))
                 .toList();
         articleReferenceRepository.saveAll(articleReferences);
+    }
+
+    @Transactional
+    @Override
+    public void updateArticle(Long id, String title, String content, List<Long> relateArticleIds) {
+        Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
+        article.update(title, content, localDateTimeHolder.now());
+
+        List<ArticleReference> existingReferences = articleReferenceRepository.findBySourceArticle(article);
+
+        if (relateArticleIds == null) {
+            relateArticleIds = List.of();
+        }
+
+        Set<Long> newIds = new HashSet<>(relateArticleIds);
+        Set<Long> existingIds = existingReferences.stream()
+                .map(ref -> ref.getTargetArticle().getId())
+                .collect(Collectors.toSet());
+
+        List<ArticleReference> referencesToRemove = existingReferences.stream()
+                .filter(ref -> !newIds.contains(ref.getTargetArticle().getId()))
+                .toList();
+        if (!referencesToRemove.isEmpty()) {
+            articleReferenceRepository.deleteAll(referencesToRemove);
+        }
+
+        Set<Long> idsToAdd =
+                newIds.stream().filter(newId -> !existingIds.contains(newId)).collect(Collectors.toSet());
+        if (!idsToAdd.isEmpty()) {
+            List<Article> articlesToAdd = articleRepository.findByIdIn(new ArrayList<>(idsToAdd));
+            List<ArticleReference> newReferences = articlesToAdd.stream()
+                    .map(target -> ArticleReference.create(article, target))
+                    .toList();
+            articleReferenceRepository.saveAll(newReferences);
+        }
     }
 }
