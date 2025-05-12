@@ -34,6 +34,9 @@ public class BaseTimeEntity {
     }
 
     public LocalDateTime getDeletedAt() {
+        if (deletedAt == null) {
+            return null;
+        }
         return deletedAt.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 }
