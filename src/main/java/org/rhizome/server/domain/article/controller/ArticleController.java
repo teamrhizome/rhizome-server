@@ -2,6 +2,7 @@ package org.rhizome.server.domain.article.controller;
 
 import org.rhizome.server.domain.article.dto.request.CreateArticleRequest;
 import org.rhizome.server.domain.article.dto.request.UpdateArticleRequest;
+import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ArticleResponse;
 import org.rhizome.server.domain.article.service.ArticleService;
 import org.rhizome.server.support.response.ApiResponse;
@@ -41,5 +42,10 @@ public class ArticleController {
                 request.content(),
                 request.relateArticleIds().articleIds());
         return ApiResponse.success();
+    }
+
+    @GetMapping
+    public ApiResponse<AllArticleResponse> getArticles() {
+        return ApiResponse.success(articleService.getArticles());
     }
 }
