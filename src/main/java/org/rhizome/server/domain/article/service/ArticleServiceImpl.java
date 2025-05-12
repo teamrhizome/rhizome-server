@@ -13,6 +13,7 @@ import org.rhizome.server.domain.article.domain.Article;
 import org.rhizome.server.domain.article.domain.ArticleReference;
 import org.rhizome.server.domain.article.domain.ArticleReferenceRepository;
 import org.rhizome.server.domain.article.domain.ArticleRepository;
+import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ArticleResponse;
 import org.rhizome.server.support.error.CoreException;
 import org.springframework.stereotype.Service;
@@ -81,5 +82,26 @@ public class ArticleServiceImpl implements ArticleService {
                     .toList();
             articleReferenceRepository.saveAll(newReferences);
         }
+    }
+
+    @Override
+    public AllArticleResponse getArticles() {
+        List<Article> articles = articleRepository.findAll();
+
+        List<AllArticleResponse.ArticleResponse> articleResponses = articles.stream()
+                .map(article -> {
+                    List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
+                    List<AllArticleResponse.ReferenceArticleResponse> relateArticles = references.stream()
+                            .map(ref -> new AllArticleResponse.ReferenceArticleResponse(
+                                    ref.getTargetArticle().getId(),
+                                    ref.getTargetArticle().getTitle()))
+                            .toList();
+
+                    return new AllArticleResponse.ArticleResponse(
+                            article.getId(), article.getTitle(), article.getContent(), relateArticles);
+                })
+                .toList();
+
+        return new AllArticleResponse(articleResponses);
     }
 }
