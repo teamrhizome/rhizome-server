@@ -53,12 +53,14 @@ spring:
         show_log: true
         format_sql: true
     show-sql: true
+    hibernate:
+      ddl-auto: update
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      jdbc-url: jdbc:mysql://${database.url}
-    username: ${database.username}
-    password: ${database.password}
+      jdbc-url: jdbc:mysql://mysql:3306/rhizome
+    username: rhizome
+    password: rhizome1234
 
 ---
 spring.config.activate.on-profile: prod
