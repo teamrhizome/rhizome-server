@@ -18,7 +18,7 @@ services:
     restart: on-failure
 
   server:
-    image: naminhyeok/rhizome-server:latest
+    image: "${DOCKER_USERNAME}/rhizome-server:${BUILD_NUMBER}"
     container_name: rhizome-server
     expose:
       - "8080"
