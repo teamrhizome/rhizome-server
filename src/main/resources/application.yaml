@@ -58,9 +58,9 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      jdbc-url: jdbc:mysql://mysql:3306/rhizome
-    username: rhizome
-    password: rhizome1234
+      jdbc-url: jdbc:mysql://${DATABASE_HOST}/${DATABASE_NAME}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
 
 ---
 spring.config.activate.on-profile: prod
@@ -75,6 +75,6 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      jdbc-url: jdbc:mysql://${database.url}
-    username: ${database.username}
-    password: ${database.password}
+      jdbc-url: jdbc:mysql://${DATABASE_HOST}/${DATABASE_NAME}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
