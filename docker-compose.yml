@@ -35,6 +35,22 @@ services:
       - rhizome-network
     restart: on-failure
 
+  nginx:
+    image: nginx:latest
+    container_name: rhizome-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - mysql
+      - server
+    volumes:
+      - ~/nginx/conf.d:/etc/nginx/conf.d
+      - ~/certbot/conf:/etc/letsencrypt
+      - ~/certbot/www:/var/www/certbot
+    networks:
+      - rhizome-network
+
 networks:
   rhizome-network:
     driver: bridge
