@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   BUILD_NUMBER: ${{ github.sha }}-${{ github.run_id }}
