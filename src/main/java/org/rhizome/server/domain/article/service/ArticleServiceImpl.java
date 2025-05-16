@@ -85,6 +85,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AllArticleResponse getArticles() {
         List<Article> articles = articleRepository.findAll();
 
