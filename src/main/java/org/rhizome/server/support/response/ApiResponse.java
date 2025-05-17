@@ -37,7 +37,7 @@ public class ApiResponse<S> {
         return result;
     }
 
-    public Object getData() {
+    public S getData() {
         return data;
     }
 
