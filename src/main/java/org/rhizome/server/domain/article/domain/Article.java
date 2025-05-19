@@ -51,6 +51,6 @@ public class Article extends BaseTimeEntity {
     public void update(String title, String content, LocalDateTime publishedAt) {
         this.title = Objects.requireNonNullElse(title, this.title);
         this.content = Objects.requireNonNullElse(content, this.content);
-        this.publishedAt = publishedAt;
+        this.publishedAt = Objects.requireNonNull(publishedAt, "게시글 작성 시간은 null 일 수 없습니다.");
     }
 }
