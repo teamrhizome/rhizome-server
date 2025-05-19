@@ -44,11 +44,10 @@ public class ArticleServiceImpl implements ArticleService {
     public void publishArticle(String title, String content, List<Long> relateArticleIds) {
         Article article = Article.create(title, content, localDateTimeHolder.now());
         Article savedArticle = articleRepository.save(article);
+
         List<Article> referenceArticles = articleRepository.findByIdIn(relateArticleIds);
-        List<ArticleReference> articleReferences = referenceArticles.stream()
-                .map(referenceArticle -> ArticleReference.create(savedArticle, referenceArticle))
-                .toList();
-        articleReferenceRepository.saveAll(articleReferences);
+        ArticleReferences articleReferences = ArticleReferences.createReferencesFrom(savedArticle, referenceArticles);
+        articleReferenceRepository.saveAll(articleReferences.values());
     }
 
     @Transactional
