@@ -1,7 +1,7 @@
 package org.rhizome.server.domain.article.service;
 
-import static org.assertj.core.api.BDDAssertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.tuple;
 
 import java.util.List;
 
@@ -32,6 +32,32 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
     void tearDown() {
         articleReferenceRepository.deleteAllInBatch();
         articleRepository.deleteAllInBatch();
+    }
+
+    @Test
+    void 게시글을_작성한다() {
+        // given
+        // when
+        articleService.publishArticle("개발자의 삶", "개발자는 힘들다", List.of());
+        // then
+        then(articleRepository.findAll())
+                .hasSize(1)
+                .extracting(Article::getTitle, Article::getContent)
+                .containsExactlyInAnyOrder(tuple("개발자의 삶", "개발자는 힘들다"));
+    }
+
+    @Test
+    void 게시글을_수정한다() {
+        // given
+        Article article = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+        Article savedArticle = articleRepository.save(article);
+        // when
+        articleService.updateArticle(savedArticle.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of());
+        // then
+        then(articleRepository.findAll())
+                .hasSize(1)
+                .extracting(Article::getTitle, Article::getContent)
+                .containsExactlyInAnyOrder(tuple("통근의 삶", "왕복 한시간반은 어렵다.."));
     }
 
     @Test
