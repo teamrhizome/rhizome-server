@@ -13,6 +13,8 @@ import org.rhizome.server.domain.article.domain.ArticleReference;
 import org.rhizome.server.domain.article.domain.ArticleReferenceRepository;
 import org.rhizome.server.domain.article.domain.ArticleRepository;
 import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
+import org.rhizome.server.domain.article.dto.response.ArticleResponse;
+import org.rhizome.server.domain.article.dto.response.ReferenceArticleResponse;
 
 class ArticleServiceImplTest extends IntegrationTestSupport {
     private final ArticleService articleService;
@@ -78,13 +80,9 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
         // then
         then(articles.articles())
                 .hasSize(3)
-                .extracting(
-                        AllArticleResponse.ArticleResponse::title, AllArticleResponse.ArticleResponse::relateArticles)
+                .extracting(ArticleResponse::title, ArticleResponse::relateArticles)
                 .containsExactlyInAnyOrder(
-                        tuple(
-                                "1번 게시글",
-                                List.of(new AllArticleResponse.ReferenceArticleResponse(
-                                        article2.getId(), article2.getTitle()))),
+                        tuple("1번 게시글", List.of(new ReferenceArticleResponse(article2.getId(), article2.getTitle()))),
                         tuple("2번 게시글", List.of()),
                         tuple("3번 게시글", List.of()));
     }
