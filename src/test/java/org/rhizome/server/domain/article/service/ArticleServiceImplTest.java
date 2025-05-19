@@ -121,6 +121,35 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
                             .containsExactly("통근의 삶", "왕복 한시간반은 어렵다.."),
                     () -> then(articleReferenceRepository.findAll()).isEmpty());
         }
+
+        @Transactional
+        @Test
+        void 게시글의_연관관계를_수정하지_않으면_기존_연관관계가_유지된다() {
+            // given
+            article1 = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+            article2 =
+                    Article.builder().title("통근의 삶").content("왕복 한시간반은 어렵다..").build();
+            article3 = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+            articleRepository.saveAll(List.of(article1, article2, article3));
+            ArticleReference reference = ArticleReference.builder()
+                    .sourceArticle(article1)
+                    .targetArticle(article2)
+                    .build();
+            articleReferenceRepository.save(reference);
+            // when
+            articleService.updateArticle(article1.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of(article2.getId()));
+            // then
+            Assertions.assertAll(
+                    () -> then(articleRepository
+                                    .findById(article1.getId())
+                                    .orElseThrow(() -> new AssertionError("게시글을 찾을 수 없습니다.")))
+                            .extracting(Article::getTitle, Article::getContent)
+                            .containsExactly("통근의 삶", "왕복 한시간반은 어렵다.."),
+                    () -> then(articleReferenceRepository.findAll())
+                            .hasSize(1)
+                            .extracting(ArticleReference::getSourceArticle, ArticleReference::getTargetArticle)
+                            .containsExactlyInAnyOrder(tuple(article1, article2)));
+        }
     }
 
     @Test
