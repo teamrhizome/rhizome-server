@@ -5,12 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-
-@Getter
-public class ArticleReferences {
-    private final List<ArticleReference> values;
-
+public record ArticleReferences(List<ArticleReference> values) {
     public ArticleReferences(List<ArticleReference> values) {
         this.values = List.copyOf(values);
     }

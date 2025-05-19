@@ -63,7 +63,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleReferences candidateRemoveReferences = existingReferences.filterNotIn(relateArticleIds);
 
         if (candidateRemoveReferences.hasReference()) {
-            articleReferenceRepository.deleteAllInBatch(candidateRemoveReferences.getValues());
+            articleReferenceRepository.deleteAllInBatch(candidateRemoveReferences.values());
         }
 
         Set<Long> idsToAdd = existingReferences.findIdsToAdd(relateArticleIds);
@@ -71,7 +71,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (!idsToAdd.isEmpty()) {
             List<Article> candidateArticlesToAdd = articleRepository.findByIdIn(new ArrayList<>(idsToAdd));
             ArticleReferences newReferences = ArticleReferences.createReferencesFrom(article, candidateArticlesToAdd);
-            articleReferenceRepository.saveAll(newReferences.getValues());
+            articleReferenceRepository.saveAll(newReferences.values());
         }
     }
 
