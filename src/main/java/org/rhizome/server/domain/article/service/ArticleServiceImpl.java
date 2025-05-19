@@ -1,6 +1,6 @@
 package org.rhizome.server.domain.article.service;
 
-import static org.rhizome.server.support.error.ErrorType.*;
+import static org.rhizome.server.support.error.ErrorType.ARTICLE_NOT_FOUND;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,6 +15,7 @@ import org.rhizome.server.domain.article.domain.ArticleReferenceRepository;
 import org.rhizome.server.domain.article.domain.ArticleRepository;
 import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ArticleResponse;
+import org.rhizome.server.domain.article.dto.response.ReferenceArticleResponse;
 import org.rhizome.server.support.error.CoreException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +34,14 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponse getArticle(Long id) {
         Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
+        List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
+        List<ReferenceArticleResponse> relateArticles = references.stream()
+                .map(ArticleReference::getTargetArticle)
+                .distinct()
+                .map(ReferenceArticleResponse::of)
+                .toList();
 
-        return ArticleResponse.of(article);
+        return ArticleResponse.of(article, relateArticles);
     }
 
     @Transactional
@@ -70,7 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .filter(ref -> !newIds.contains(ref.getTargetArticle().getId()))
                 .toList();
         if (!referencesToRemove.isEmpty()) {
-            articleReferenceRepository.deleteAll(referencesToRemove);
+            articleReferenceRepository.deleteAllInBatch(referencesToRemove);
         }
 
         Set<Long> idsToAdd =
@@ -89,17 +96,15 @@ public class ArticleServiceImpl implements ArticleService {
     public AllArticleResponse getArticles() {
         List<Article> articles = articleRepository.findAll();
 
-        List<AllArticleResponse.ArticleResponse> articleResponses = articles.stream()
+        List<ArticleResponse> articleResponses = articles.stream()
                 .map(article -> {
                     List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
-                    List<AllArticleResponse.ReferenceArticleResponse> relateArticles = references.stream()
-                            .map(ref -> new AllArticleResponse.ReferenceArticleResponse(
-                                    ref.getTargetArticle().getId(),
-                                    ref.getTargetArticle().getTitle()))
+                    List<ReferenceArticleResponse> relateArticles = references.stream()
+                            .map(ArticleReference::getTargetArticle)
+                            .distinct()
+                            .map(ReferenceArticleResponse::of)
                             .toList();
-
-                    return new AllArticleResponse.ArticleResponse(
-                            article.getId(), article.getTitle(), article.getContent(), relateArticles);
+                    return ArticleResponse.of(article, relateArticles);
                 })
                 .toList();
 
