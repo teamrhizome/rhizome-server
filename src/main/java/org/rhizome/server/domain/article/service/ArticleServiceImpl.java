@@ -3,16 +3,11 @@ package org.rhizome.server.domain.article.service;
 import static org.rhizome.server.support.error.ErrorType.ARTICLE_NOT_FOUND;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.rhizome.server.common.utils.LocalDateTimeHolder;
-import org.rhizome.server.domain.article.domain.Article;
-import org.rhizome.server.domain.article.domain.ArticleReference;
-import org.rhizome.server.domain.article.domain.ArticleReferenceRepository;
-import org.rhizome.server.domain.article.domain.ArticleRepository;
+import org.rhizome.server.domain.article.domain.*;
 import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ReferenceArticleResponse;
@@ -33,7 +28,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(readOnly = true)
     @Override
     public ArticleResponse getArticle(Long id) {
-        Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
+        Article article = findArticleBy(id);
         List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
         List<ReferenceArticleResponse> relateArticles = references.stream()
                 .map(ArticleReference::getTargetArticle)
@@ -59,35 +54,24 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     @Override
     public void updateArticle(Long id, String title, String content, List<Long> relateArticleIds) {
-        Article article = articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
+        Article article = findArticleBy(id);
         article.update(title, content, localDateTimeHolder.now());
 
-        List<ArticleReference> existingReferences = articleReferenceRepository.findBySourceArticle(article);
+        ArticleReferences existingReferences =
+                new ArticleReferences(articleReferenceRepository.findBySourceArticle(article));
 
-        if (relateArticleIds == null) {
-            relateArticleIds = List.of();
+        ArticleReferences candidateRemoveReferences = existingReferences.filterNotIn(relateArticleIds);
+
+        if (candidateRemoveReferences.hasReference()) {
+            articleReferenceRepository.deleteAllInBatch(candidateRemoveReferences.getValues());
         }
 
-        Set<Long> newIds = new HashSet<>(relateArticleIds);
-        Set<Long> existingIds = existingReferences.stream()
-                .map(ref -> ref.getTargetArticle().getId())
-                .collect(Collectors.toSet());
+        Set<Long> idsToAdd = existingReferences.findIdsToAdd(relateArticleIds);
 
-        List<ArticleReference> referencesToRemove = existingReferences.stream()
-                .filter(ref -> !newIds.contains(ref.getTargetArticle().getId()))
-                .toList();
-        if (!referencesToRemove.isEmpty()) {
-            articleReferenceRepository.deleteAllInBatch(referencesToRemove);
-        }
-
-        Set<Long> idsToAdd =
-                newIds.stream().filter(newId -> !existingIds.contains(newId)).collect(Collectors.toSet());
         if (!idsToAdd.isEmpty()) {
-            List<Article> articlesToAdd = articleRepository.findByIdIn(new ArrayList<>(idsToAdd));
-            List<ArticleReference> newReferences = articlesToAdd.stream()
-                    .map(target -> ArticleReference.create(article, target))
-                    .toList();
-            articleReferenceRepository.saveAll(newReferences);
+            List<Article> candidateArticlesToAdd = articleRepository.findByIdIn(new ArrayList<>(idsToAdd));
+            ArticleReferences newReferences = ArticleReferences.createReferencesFrom(article, candidateArticlesToAdd);
+            articleReferenceRepository.saveAll(newReferences.getValues());
         }
     }
 
@@ -109,5 +93,9 @@ public class ArticleServiceImpl implements ArticleService {
                 .toList();
 
         return new AllArticleResponse(articleResponses);
+    }
+
+    private Article findArticleBy(Long id) {
+        return articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
     }
 }
