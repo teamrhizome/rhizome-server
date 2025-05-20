@@ -2,11 +2,11 @@ package org.rhizome.server.domain.article.service;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.tuple;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.rhizome.server.IntegrationTestSupport;
@@ -37,6 +37,58 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
     void tearDown() {
         articleReferenceRepository.deleteAllInBatch();
         articleRepository.deleteAllInBatch();
+    }
+
+    @Nested
+    class 게시글을_조회할때 {
+        Article article1;
+        Article article2;
+
+        @AfterEach
+        void tearDown() {
+            articleReferenceRepository.deleteAllInBatch();
+            articleRepository.deleteAllInBatch();
+        }
+
+        @Test
+        void 연결관계가없는_게시글을_조회한다() {
+            // given
+            article1 = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+            Article savedArticle = articleRepository.save(article1);
+            // when
+            ArticleResponse articleResponse = articleService.getArticle(savedArticle.getId());
+            // then
+            assertAll(
+                    () -> then(articleResponse)
+                            .extracting(ArticleResponse::title, ArticleResponse::content)
+                            .containsExactly("개발자의 삶", "개발자는 힘들다"),
+                    () -> then(articleResponse.relateArticles()).hasSize(0));
+        }
+
+        @Test
+        void 연결관계가있는_게시글을_조회한다() {
+            // given
+            article1 = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+            article2 =
+                    Article.builder().title("통근의 삶").content("왕복 한시간반은 어렵다..").build();
+            articleRepository.saveAll(List.of(article1, article2));
+            ArticleReference reference = ArticleReference.builder()
+                    .sourceArticle(article1)
+                    .targetArticle(article2)
+                    .build();
+            articleReferenceRepository.save(reference);
+            // when
+            ArticleResponse articleResponse = articleService.getArticle(article1.getId());
+            // then
+            assertAll(
+                    () -> then(articleResponse)
+                            .extracting(ArticleResponse::title, ArticleResponse::content)
+                            .containsExactly("개발자의 삶", "개발자는 힘들다"),
+                    () -> then(articleResponse.relateArticles())
+                            .hasSize(1)
+                            .extracting(ReferenceArticleResponse::id, ReferenceArticleResponse::title)
+                            .containsExactly(tuple(article2.getId(), "통근의 삶")));
+        }
     }
 
     @Test
@@ -89,7 +141,7 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
             // when
             articleService.updateArticle(article1.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of(article2.getId()));
             // then
-            Assertions.assertAll(
+            assertAll(
                     () -> then(articleRepository
                                     .findById(article1.getId())
                                     .orElseThrow(() -> new AssertionError("게시글을 찾을 수 없습니다.")))
@@ -113,7 +165,7 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
             // when
             articleService.updateArticle(article1.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of());
             // then
-            Assertions.assertAll(
+            assertAll(
                     () -> then(articleRepository
                                     .findById(article1.getId())
                                     .orElseThrow(() -> new AssertionError("게시글을 찾을 수 없습니다.")))
@@ -139,7 +191,7 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
             // when
             articleService.updateArticle(article1.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of(article2.getId()));
             // then
-            Assertions.assertAll(
+            assertAll(
                     () -> then(articleRepository
                                     .findById(article1.getId())
                                     .orElseThrow(() -> new AssertionError("게시글을 찾을 수 없습니다.")))
