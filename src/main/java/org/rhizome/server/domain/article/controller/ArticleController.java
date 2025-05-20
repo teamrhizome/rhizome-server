@@ -34,10 +34,10 @@ public class ArticleController {
         return ApiResponse.success();
     }
 
-    @PutMapping
-    public ApiResponse<?> updateArticle(@RequestBody UpdateArticleRequest request) {
+    @PutMapping("/{id}")
+    public ApiResponse<?> updateArticle(@PathVariable Long id, @RequestBody UpdateArticleRequest request) {
         articleService.updateArticle(
-                request.id(),
+                id,
                 request.title(),
                 request.content(),
                 request.relateArticleIds().articleIds());
