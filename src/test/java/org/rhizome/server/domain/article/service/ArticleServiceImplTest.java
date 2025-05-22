@@ -17,6 +17,7 @@ import org.rhizome.server.domain.article.domain.ArticleRepository;
 import org.rhizome.server.domain.article.dto.response.AllArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ArticleResponse;
 import org.rhizome.server.domain.article.dto.response.ReferenceArticleResponse;
+import org.rhizome.server.support.BaseTimeEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 class ArticleServiceImplTest extends IntegrationTestSupport {
@@ -227,5 +228,36 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
                         tuple("1번 게시글", List.of(new ReferenceArticleResponse(article2.getId(), article2.getTitle()))),
                         tuple("2번 게시글", List.of()),
                         tuple("3번 게시글", List.of()));
+    }
+
+    @Test
+    void 게시글을_삭제한다_soft_delete() {
+        // given
+        Article article = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
+        Article referenceArticle1 =
+                Article.builder().title("통근의 삶").content("왕복 한시간반은 어렵다..").build();
+        Article referenceArticle2 = Article.builder()
+                .title("소프트딜리트하는 방법")
+                .content("deltedAt을 이용해 시간을 넣고 값이 있으면 삭제된 것으로 취급한다")
+                .build();
+        articleRepository.saveAll(List.of(article, referenceArticle1, referenceArticle2));
+        ArticleReference reference1 = ArticleReference.builder()
+                .sourceArticle(article)
+                .targetArticle(referenceArticle1)
+                .build();
+        ArticleReference reference2 = ArticleReference.builder()
+                .sourceArticle(article)
+                .targetArticle(referenceArticle2)
+                .build();
+        articleReferenceRepository.saveAll(List.of(reference1, reference2));
+        // when
+        articleService.deleteArticle(article.getId());
+        // then
+        articleRepository.findById(article.getId()).ifPresent(a -> then(a.getDeletedAt())
+                .isNotNull());
+        then(articleReferenceRepository.findAll())
+                .hasSize(2)
+                .extracting(BaseTimeEntity::getDeletedAt)
+                .doesNotContainNull();
     }
 }

@@ -108,6 +108,28 @@ class ArticleReferencesTest {
         then(references.hasReference()).isFalse();
     }
 
+    @Test
+    void 연결관계를_삭제한다() {
+        // given
+        Article sourceArticle =
+                Article.builder().title("source").content("source content").build();
+        Article targetArticle1 =
+                Article.builder().title("target").content("target content").build();
+        Article targetArticle2 =
+                Article.builder().title("target").content("target content").build();
+        ArticleReference reference1 = ArticleReference.create(sourceArticle, targetArticle1);
+        ArticleReference reference2 = ArticleReference.create(sourceArticle, targetArticle2);
+
+        ArticleReferences references = new ArticleReferences(List.of(reference1, reference2));
+
+        // when
+        references.deleteAll();
+
+        // then
+        then(reference1.getDeletedAt()).isNotNull();
+        then(reference2.getDeletedAt()).isNotNull();
+    }
+
     private void setArticleId(Article article, Long id) {
         ReflectionTestUtils.setField(article, "id", id);
     }

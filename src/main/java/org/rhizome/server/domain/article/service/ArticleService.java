@@ -13,4 +13,6 @@ public interface ArticleService {
     void updateArticle(Long id, String title, String content, List<Long> relateArticleIds);
 
     AllArticleResponse getArticles();
+
+    void deleteArticle(Long id);
 }

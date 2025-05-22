@@ -34,6 +34,12 @@ public record ArticleReferences(List<ArticleReference> values) {
                 .toList());
     }
 
+    public void deleteAll() {
+        for (ArticleReference reference : values) {
+            reference.delete();
+        }
+    }
+
     public boolean hasReference() {
         return !values.isEmpty();
     }
