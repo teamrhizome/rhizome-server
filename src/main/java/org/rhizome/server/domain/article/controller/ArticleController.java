@@ -48,4 +48,10 @@ public class ArticleController {
     public ApiResponse<AllArticleResponse> getArticles() {
         return ApiResponse.success(articleService.getArticles());
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> deleteArticle(@PathVariable Long id) {
+        articleService.deleteArticle(id);
+        return ApiResponse.success();
+    }
 }
