@@ -29,7 +29,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponse getArticle(Long id) {
         Article article = findArticleBy(id);
-        List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
+        List<ArticleReference> references = articleReferenceRepository.findBySourceArticleAndDeletedAtIsNull(article);
         List<ReferenceArticleResponse> relateArticles = references.stream()
                 .map(ArticleReference::getTargetArticle)
                 .distinct()
@@ -45,7 +45,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = Article.create(title, content, localDateTimeHolder.now());
         Article savedArticle = articleRepository.save(article);
 
-        List<Article> referenceArticles = articleRepository.findByIdIn(relateArticleIds);
+        List<Article> referenceArticles = articleRepository.findByIdInAndDeletedAtIsNull(relateArticleIds);
         ArticleReferences articleReferences = ArticleReferences.createReferencesFrom(savedArticle, referenceArticles);
         articleReferenceRepository.saveAll(articleReferences.values());
     }
@@ -57,18 +57,19 @@ public class ArticleServiceImpl implements ArticleService {
         article.update(title, content, localDateTimeHolder.now());
 
         ArticleReferences existingReferences =
-                new ArticleReferences(articleReferenceRepository.findBySourceArticle(article));
+                new ArticleReferences(articleReferenceRepository.findBySourceArticleAndDeletedAtIsNull(article));
 
         ArticleReferences candidateRemoveReferences = existingReferences.filterNotIn(relateArticleIds);
 
         if (candidateRemoveReferences.hasReference()) {
-            articleReferenceRepository.deleteAllInBatch(candidateRemoveReferences.values());
+            candidateRemoveReferences.deleteAll();
         }
 
         Set<Long> idsToAdd = existingReferences.findIdsToAdd(relateArticleIds);
 
         if (!idsToAdd.isEmpty()) {
-            List<Article> candidateArticlesToAdd = articleRepository.findByIdIn(new ArrayList<>(idsToAdd));
+            List<Article> candidateArticlesToAdd =
+                    articleRepository.findByIdInAndDeletedAtIsNull(new ArrayList<>(idsToAdd));
             ArticleReferences newReferences = ArticleReferences.createReferencesFrom(article, candidateArticlesToAdd);
             articleReferenceRepository.saveAll(newReferences.values());
         }
@@ -77,11 +78,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(readOnly = true)
     public AllArticleResponse getArticles() {
-        List<Article> articles = articleRepository.findAll();
+        List<Article> articles = articleRepository.findByDeletedAtIsNull();
 
         List<ArticleResponse> articleResponses = articles.stream()
                 .map(article -> {
-                    List<ArticleReference> references = articleReferenceRepository.findBySourceArticle(article);
+                    List<ArticleReference> references =
+                            articleReferenceRepository.findBySourceArticleAndDeletedAtIsNull(article);
                     List<ReferenceArticleResponse> relateArticles = references.stream()
                             .map(ArticleReference::getTargetArticle)
                             .distinct()
@@ -98,7 +100,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteArticle(Long id) {
         Article article = findArticleBy(id);
         ArticleReferences articleReferences =
-                new ArticleReferences(articleReferenceRepository.findBySourceArticle(article));
+                new ArticleReferences(articleReferenceRepository.findBySourceArticleAndDeletedAtIsNull(article));
         articleReferences.deleteAll();
         article.delete();
     }

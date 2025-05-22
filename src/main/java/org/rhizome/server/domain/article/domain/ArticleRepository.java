@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
-    List<Article> findByIdIn(List<Long> ids);
+    List<Article> findByIdInAndDeletedAtIsNull(List<Long> ids);
+
+    List<Article> findByDeletedAtIsNull();
 }
