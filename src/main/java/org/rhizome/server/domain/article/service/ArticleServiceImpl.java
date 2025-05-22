@@ -94,6 +94,15 @@ public class ArticleServiceImpl implements ArticleService {
         return new AllArticleResponse(articleResponses);
     }
 
+    @Transactional
+    public void deleteArticle(Long id) {
+        Article article = findArticleBy(id);
+        ArticleReferences articleReferences =
+                new ArticleReferences(articleReferenceRepository.findBySourceArticle(article));
+        articleReferences.deleteAll();
+        article.delete();
+    }
+
     private Article findArticleBy(Long id) {
         return articleRepository.findById(id).orElseThrow(() -> new CoreException(ARTICLE_NOT_FOUND));
     }
