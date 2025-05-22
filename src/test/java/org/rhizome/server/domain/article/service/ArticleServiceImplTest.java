@@ -163,6 +163,11 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
                     Article.builder().title("통근의 삶").content("왕복 한시간반은 어렵다..").build();
             article3 = Article.builder().title("개발자의 삶").content("개발자는 힘들다").build();
             articleRepository.saveAll(List.of(article1, article2, article3));
+            ArticleReference reference = ArticleReference.builder()
+                    .sourceArticle(article1)
+                    .targetArticle(article2)
+                    .build();
+            articleReferenceRepository.save(reference);
             // when
             articleService.updateArticle(article1.getId(), "통근의 삶", "왕복 한시간반은 어렵다..", List.of());
             // then
@@ -172,7 +177,9 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
                                     .orElseThrow(() -> new AssertionError("게시글을 찾을 수 없습니다.")))
                             .extracting(Article::getTitle, Article::getContent)
                             .containsExactly("통근의 삶", "왕복 한시간반은 어렵다.."),
-                    () -> then(articleReferenceRepository.findAll()).isEmpty());
+                    () -> then(articleReferenceRepository.findAll())
+                            .extracting(ArticleReference::getDeletedAt)
+                            .isNotNull());
         }
 
         @Transactional
