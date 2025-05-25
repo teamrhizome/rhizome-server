@@ -96,6 +96,7 @@ public class ArticleServiceImpl implements ArticleService {
         return new AllArticleResponse(articleResponses);
     }
 
+    @Override
     @Transactional
     public void deleteArticle(Long id) {
         Article article = findArticleBy(id);
