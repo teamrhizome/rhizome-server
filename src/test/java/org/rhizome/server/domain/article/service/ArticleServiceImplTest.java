@@ -245,7 +245,7 @@ class ArticleServiceImplTest extends IntegrationTestSupport {
                 Article.builder().title("통근의 삶").content("왕복 한시간반은 어렵다..").build();
         Article referenceArticle2 = Article.builder()
                 .title("소프트딜리트하는 방법")
-                .content("deltedAt을 이용해 시간을 넣고 값이 있으면 삭제된 것으로 취급한다")
+                .content("deletedAt을 이용해 시간을 넣고 값이 있으면 삭제된 것으로 취급한다")
                 .build();
         articleRepository.saveAll(List.of(article, referenceArticle1, referenceArticle2));
         ArticleReference reference1 = ArticleReference.builder()
