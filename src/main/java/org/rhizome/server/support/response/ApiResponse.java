@@ -5,15 +5,15 @@ import org.rhizome.server.support.error.ErrorType;
 
 public class ApiResponse<S> {
 
-    private final ResultType result;
+    private final ResultType resultType;
 
-    private final S data;
+    private final S success;
 
     private final ErrorMessage error;
 
-    private ApiResponse(ResultType result, S data, ErrorMessage error) {
-        this.result = result;
-        this.data = data;
+    private ApiResponse(ResultType resultType, S success, ErrorMessage error) {
+        this.resultType = resultType;
+        this.success = success;
         this.error = error;
     }
 
@@ -34,11 +34,11 @@ public class ApiResponse<S> {
     }
 
     public ResultType getResult() {
-        return result;
+        return resultType;
     }
 
     public S getData() {
-        return data;
+        return success;
     }
 
     public ErrorMessage getError() {
