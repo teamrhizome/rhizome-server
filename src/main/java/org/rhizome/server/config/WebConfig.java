@@ -2,10 +2,26 @@ package org.rhizome.server.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration(proxyBeanMethods = false)
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final ApiLoggingInterceptor apiLoggingInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(apiLoggingInterceptor)
+                .addPathPatterns("/api/**") // /api로 시작하는 모든 요청
+                .excludePathPatterns(
+                        "/swagger-ui/**", // Swagger UI 제외
+                        "/api-docs/**" // API 문서 제외
+                        );
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

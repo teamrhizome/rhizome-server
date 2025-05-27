@@ -24,9 +24,6 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         // 요청 시작 시간 기록
         request.setAttribute(START_TIME, System.currentTimeMillis());
 
-        // 테스트용 로그
-        log.info("🔍 인터셉터 동작 - {} {}", request.getMethod(), request.getRequestURI());
-
         return true;
     }
 
