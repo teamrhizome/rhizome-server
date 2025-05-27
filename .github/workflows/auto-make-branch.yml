@@ -1,0 +1,31 @@
+name: Auto Create Branch for Issue
+on:
+  issues:
+    types:
+        - opened
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create branch
+        run: |
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+
+          TEMP_TITLE=$(echo "$ISSUE_TITLE" | tr ' ' '-')
+          FORMATTED_TITLE=$(echo "$TEMP_TITLE" | sed 's/[^a-zA-Z0-9-_가-힣]//g')
+          BRANCH_NAME="issue/#$ISSUE_NUMBER-$FORMATTED_TITLE"
+
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
