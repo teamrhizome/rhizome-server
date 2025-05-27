@@ -3,17 +3,20 @@ package org.rhizome.server.support.response;
 import org.rhizome.server.support.error.ErrorMessage;
 import org.rhizome.server.support.error.ErrorType;
 
+import lombok.Getter;
+
+@Getter
 public class ApiResponse<S> {
 
-    private final ResultType result;
+    private final ResultType resultType;
 
-    private final S data;
+    private final S success;
 
     private final ErrorMessage error;
 
-    private ApiResponse(ResultType result, S data, ErrorMessage error) {
-        this.result = result;
-        this.data = data;
+    private ApiResponse(ResultType resultType, S success, ErrorMessage error) {
+        this.resultType = resultType;
+        this.success = success;
         this.error = error;
     }
 
@@ -31,17 +34,5 @@ public class ApiResponse<S> {
 
     public static ApiResponse<?> error(ErrorType error, Object errorData) {
         return new ApiResponse<>(ResultType.ERROR, null, new ErrorMessage(error, errorData));
-    }
-
-    public ResultType getResult() {
-        return result;
-    }
-
-    public S getData() {
-        return data;
-    }
-
-    public ErrorMessage getError() {
-        return error;
     }
 }
