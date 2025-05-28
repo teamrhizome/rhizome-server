@@ -1,6 +1,12 @@
 spring.application.name: rhizome
 spring.profiles.active: local
 
+# 로깅 설정 - DEBUG 로그 제거
+logging:
+  level:
+    root: INFO  # 전체 기본을 INFO로
+    org.rhizome.server: INFO  # 내 애플리케이션도 INFO
+
 spring:
   jpa:
     open-in-view: false
